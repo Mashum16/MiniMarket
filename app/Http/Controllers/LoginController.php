@@ -1,0 +1,59 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+use App\Rules\reCaptcha;
+
+class LoginController extends Controller
+{
+    public function login()
+    {
+        return view('backend.v_login.login', [
+            'judul' => 'login'
+        ]);
+    }
+
+    public function authenticate(Request $request)
+    {
+        // VALIDASI AWAL (termasuk captcha)
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+            'g-recaptcha-response' => [new reCaptcha()] // pastikan captcha dicentang
+        ]);
+
+        // PROSES AUTENTIKASI USER
+        $credentials = $request->only('email', 'password');
+
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+
+            // Redirect berdasarkan role
+            if (Auth::user()->role === 'admin') {
+                return redirect('/admin');
+            }
+
+            if (Auth::user()->role === 'staff') {
+                return redirect('/staff');
+            }
+
+            return redirect('/beranda');
+        }
+
+        return back()->withErrors([
+            'email' => 'Email atau password salah.'
+        ])->withInput();
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/login');
+    }
+}
