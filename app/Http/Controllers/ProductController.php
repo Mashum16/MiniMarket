@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\AuditLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Helpers\ImageHelper;
 
 class ProductController extends Controller
@@ -21,7 +23,7 @@ class ProductController extends Controller
         return view('backend.v_dashboard.productCreate');
     }
 
-    // Simpan produk baru
+    // Simpan produk baru (CREATE)
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -29,31 +31,37 @@ class ProductController extends Controller
             'price'       => 'required|numeric',
             'stock'       => 'required|numeric',
             'description' => 'nullable|string',
-            'image'        => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'image'       => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
         ]);
 
-        // Upload foto menggunakan ImageHelper
+        // Upload foto
         if ($request->file('image')) {
             $file = $request->file('image');
-            $extension = $file->getClientOriginalExtension();
-
-            $fileName = date('YmdHis') . '_' . uniqid() . '.' . $extension;
-
+            $fileName = date('YmdHis') . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
             $directory = 'storage/img-product/';
-
-            // Resize contoh 500x500 (bisa diganti)
             ImageHelper::uploadAndResize($file, $directory, $fileName, 500, 500);
-
             $validated['image'] = $fileName;
         }
 
-        Product::create([
+        $product = Product::create([
             'name'        => $validated['name'],
             'price'       => $validated['price'],
             'stock'       => $validated['stock'],
             'description' => $validated['description'] ?? null,
             'image'       => $validated['image'] ?? null,
         ]);
+
+        // ================= AUDIT LOG =================
+        AuditLog::create([
+            'user_id'    => Auth::id(),
+            'action'     => 'CREATE',
+            'table_name' => 'products',
+            'record_id'  => $product->id,
+            'description'=> 'Menambahkan data produk',
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+        // =============================================
 
         return redirect()->route('products.index')
             ->with('success', 'Produk berhasil ditambahkan');
@@ -66,7 +74,7 @@ class ProductController extends Controller
         return view('backend.v_dashboard.productEdit', compact('product'));
     }
 
-    // Update produk
+    // Update produk (UPDATE)
     public function update(Request $request, $id)
     {
         $product = Product::findOrFail($id);
@@ -76,29 +84,23 @@ class ProductController extends Controller
             'price'       => 'required|numeric',
             'stock'       => 'required|numeric',
             'description' => 'nullable|string',
-            'image'        => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'image'       => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
         ]);
 
-        // Jika ada foto baru
+        // Upload foto baru
         if ($request->file('image')) {
 
-            // Hapus foto lama jika ada
             if ($product->image && file_exists(public_path('storage/img-product/' . $product->image))) {
                 unlink(public_path('storage/img-product/' . $product->image));
             }
 
             $file = $request->file('image');
-            $extension = $file->getClientOriginalExtension();
-            $fileName = date('YmdHis') . '_' . uniqid() . '.' . $extension;
-
+            $fileName = date('YmdHis') . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
             $directory = 'storage/img-product/';
-
             ImageHelper::uploadAndResize($file, $directory, $fileName, 500, 500);
-
             $validated['image'] = $fileName;
         }
 
-        // Update database
         $product->update([
             'name'        => $validated['name'],
             'price'       => $validated['price'],
@@ -107,29 +109,52 @@ class ProductController extends Controller
             'image'       => $validated['image'] ?? $product->image,
         ]);
 
+        // ================= AUDIT LOG =================
+        AuditLog::create([
+            'user_id'    => Auth::id(),
+            'action'     => 'UPDATE',
+            'table_name' => 'products',
+            'record_id'  => $product->id,
+            'description'=> 'Memperbarui data produk',
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+        // =============================================
+
         return redirect()->route('products.index')
             ->with('success', 'Produk berhasil diupdate');
     }
 
-    // Hapus produk
+    // Hapus produk (DELETE)
     public function destroy($id)
     {
         $product = Product::findOrFail($id);
 
-        // Hapus foto jika ada
         if ($product->image && file_exists(public_path('storage/img-product/' . $product->image))) {
             unlink(public_path('storage/img-product/' . $product->image));
         }
 
         $product->delete();
 
+        // ================= AUDIT LOG =================
+        AuditLog::create([
+            'user_id'    => Auth::id(),
+            'action'     => 'DELETE',
+            'table_name' => 'products',
+            'record_id'  => $id,
+            'description'=> 'Menghapus data produk',
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+        // =============================================
+
         return redirect()->route('products.index')
             ->with('success', 'Produk berhasil dihapus');
     }
 
-    // Detail produk (ga guna jir)
+    // Detail produk
     public function show($id)
     {
-
+        // Tidak ada perubahan data → tidak perlu audit
     }
 }

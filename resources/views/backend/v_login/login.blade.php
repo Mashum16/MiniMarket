@@ -80,7 +80,7 @@
             </div>
 
               <div class="form-group">
-                  <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}"></div>
+                  <div class="g-recaptcha" data-type="image" data-sitekey="{{ config('services.recaptcha.site_key') }}"></div>
                   @error('g-recaptcha-response')
                       <span class="text-danger">{{ $message }}</span>
                   @enderror

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\AuditLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Helpers\ImageHelper;
 
@@ -33,7 +35,7 @@ class AdminDashboardController extends Controller
     }
 
     /**
-     * Simpan user baru
+     * Simpan user baru (CREATE)
      */
     public function store(Request $request)
     {
@@ -41,26 +43,23 @@ class AdminDashboardController extends Controller
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:users,email',
             'role'     => 'required|in:customer,staff,admin',
-            'phone'       => 'nullable|string|max:13',
-            'avatar'     => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'phone'    => 'nullable|string|max:13',
+            'avatar'   => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
             'password' => 'required|min:4|confirmed',
         ]);
 
-        // Upload foto jika ada
+        // Upload foto
         if ($request->hasFile('avatar')) {
             $file = $request->file('avatar');
-            $extension = $file->getClientOriginalExtension();
-            $fileName = date('YmdHis') . '_' . uniqid() . '.' . $extension;
+            $fileName = date('YmdHis') . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
             $directory = 'storage/img-user/';
-
             ImageHelper::uploadAndResize($file, $directory, $fileName, 385, 400);
-
             $validated['avatar'] = $fileName;
         }
 
         $validated['password'] = Hash::make($validated['password']);
 
-        User::create([
+        $user = User::create([
             'name'     => $validated['name'],
             'email'    => $validated['email'],
             'role'     => $validated['role'],
@@ -68,6 +67,18 @@ class AdminDashboardController extends Controller
             'avatar'   => $validated['avatar'] ?? null,
             'password' => $validated['password'],
         ]);
+
+        // ================= AUDIT LOG =================
+        AuditLog::create([
+            'user_id'    => Auth::id(),
+            'action'     => 'CREATE',
+            'table_name' => 'users',
+            'record_id'  => $user->id,
+            'description'=> 'Admin menambahkan user baru',
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+        // =============================================
 
         return redirect()->route('admin.index')
             ->with('success', 'User berhasil ditambahkan.');
@@ -82,12 +93,12 @@ class AdminDashboardController extends Controller
 
         return view('backend.v_dashboard.adminEdit', [
             'judul' => 'Edit User',
-            'index'  => $user,
+            'index' => $user,
         ]);
     }
 
     /**
-     * Update user
+     * Update user (UPDATE)
      */
     public function update(Request $request, string $id)
     {
@@ -97,36 +108,30 @@ class AdminDashboardController extends Controller
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:users,email,' . $user->id,
             'role'     => 'required|in:customer,staff,admin',
-            'phone'       => 'nullable|string|max:13',
-            'avatar'     => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'phone'    => 'nullable|string|max:13',
+            'avatar'   => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
             'password' => 'nullable|min:4|confirmed',
         ]);
 
-        // --- Jika upload foto baru → hapus lama + simpan baru ---
+        // Upload avatar baru
         if ($request->hasFile('avatar')) {
-
             if ($user->avatar && file_exists(public_path('storage/img-user/' . $user->avatar))) {
                 unlink(public_path('storage/img-user/' . $user->avatar));
             }
 
             $file = $request->file('avatar');
-            $extension = $file->getClientOriginalExtension();
-            $fileName = date('YmdHis') . '_' . uniqid() . '.' . $extension;
+            $fileName = date('YmdHis') . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
             $directory = 'storage/img-user/';
-
             ImageHelper::uploadAndResize($file, $directory, $fileName, 385, 400);
-
             $validated['avatar'] = $fileName;
         }
 
-        // --- Password hanya diupdate jika diisi ---
         if (!empty($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
         } else {
             unset($validated['password']);
         }
 
-        // --- Update data ---
         $user->update([
             'name'     => $validated['name'],
             'email'    => $validated['email'],
@@ -136,23 +141,46 @@ class AdminDashboardController extends Controller
             'password' => $validated['password'] ?? $user->password,
         ]);
 
+        // ================= AUDIT LOG =================
+        AuditLog::create([
+            'user_id'    => Auth::id(),
+            'action'     => 'UPDATE',
+            'table_name' => 'users',
+            'record_id'  => $user->id,
+            'description'=> 'Admin memperbarui data user',
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+        // =============================================
+
         return redirect()->route('admin.index')
             ->with('success', 'Data user berhasil diperbarui.');
     }
 
     /**
-     * Hapus user
+     * Hapus user (DELETE)
      */
     public function destroy(string $id)
     {
         $user = User::findOrFail($id);
 
-        // hapus foto jika ada
         if ($user->avatar && file_exists(public_path('storage/img-user/' . $user->avatar))) {
             unlink(public_path('storage/img-user/' . $user->avatar));
         }
 
         $user->delete();
+
+        // ================= AUDIT LOG =================
+        AuditLog::create([
+            'user_id'    => Auth::id(),
+            'action'     => 'DELETE',
+            'table_name' => 'users',
+            'record_id'  => $id,
+            'description'=> 'Admin menghapus data user',
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+        // =============================================
 
         return redirect()->route('admin.index')
             ->with('success', 'User berhasil dihapus.');
@@ -161,8 +189,6 @@ class AdminDashboardController extends Controller
     public function show($id)
     {
         $user = User::findOrFail($id);
-
         return view('admin.show', compact('user'));
     }
-
 }

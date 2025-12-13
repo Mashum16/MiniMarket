@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -43,9 +45,18 @@ class LoginController extends Controller
             return redirect('/beranda');
         }
 
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'LOGIN',
+            'description' => 'User melakukan login',
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+        
         return back()->withErrors([
             'email' => 'Email atau password salah.'
         ])->withInput();
+
     }
 
     public function logout(Request $request)
@@ -53,6 +64,14 @@ class LoginController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'LOGOUT',
+            'description' => 'User melakukan logout',
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
 
         return redirect('/login');
     }
