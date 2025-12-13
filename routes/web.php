@@ -9,13 +9,24 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\AuditLogController;
 
-// halaman welcome (ga penting sih)
+/*
+|--------------------------------------------------------------------------
+| WEB ROUTES
+|--------------------------------------------------------------------------
+*/
+
+// halaman welcome
 Route::get('/', function () {
     return view('welcome');
 });
 
-// guest akan login atau register dlu disini
+/*
+|--------------------------------------------------------------------------
+| GUEST (Belum Login)
+|--------------------------------------------------------------------------
+*/
 Route::middleware('guest')->group(function () {
 
     Route::get('/login', [LoginController::class, 'login'])
@@ -30,53 +41,74 @@ Route::middleware('guest')->group(function () {
         ->name('register.store');
 });
 
-// resource untuk produk jadinya bisa melihat, menambah, mengedit dashboard produk
-Route::resource('products', ProductController::class);
+/*
+|--------------------------------------------------------------------------
+| AUTH (Sudah Login)
+|--------------------------------------------------------------------------
+*/
 
 // logout
 Route::post('/logout', [LoginController::class, 'logout'])
     ->middleware('auth')
     ->name('logout');
 
-
-// untuk yang sudah login bisa melihat :
 Route::middleware('auth')->group(function () {
+
     Route::get('/beranda', [BerandaController::class, 'beranda'])
         ->name('beranda');
 
-    Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+    Route::get('/profile', [ProfileController::class, 'index'])
+        ->name('profile');
 
-    Route::resource('orders', OrderController::class)->only([
-        'index', 'show'
-        
-    ]);
-    
-    // Opsional: update status untuk admin/staff
-    Route::post('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
+    // produk (CRUD)
+    Route::resource('products', ProductController::class);
 
-    // keranjang (pake sesi bukan pake tabel, ribet anj tar klo pake tabel)
+    // order user
+    Route::resource('orders', OrderController::class)
+        ->only(['index', 'show']);
+
+    // update status order (admin / staff)
+    Route::post('/orders/{order}/status', [OrderController::class, 'updateStatus'])
+        ->name('orders.updateStatus');
+
+    // ================= CART =================
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/add/{id}', [CartController::class, 'addToCart'])->name('cart.add');
     Route::patch('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
     Route::post('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
     Route::get('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
-    
+
     // checkout keranjang
-    Route::get('/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
+    Route::post('/checkout', [CartController::class, 'checkout'])
+        ->name('cart.checkout');
 });
 
-// staff (gw lupa aseli ada ini role)
+/*
+|--------------------------------------------------------------------------
+| STAFF
+|--------------------------------------------------------------------------
+*/
 Route::middleware(['auth', 'role:staff'])->group(function () {
+
     Route::get('/staff/dashboard', function () {
         return view('backend.v_dashboard.staffDashboard');
     })->name('staff.dashboard');
 });
 
-// admin
-Route::middleware(['auth', 'role:admin'])->group(function () {
+/*
+|--------------------------------------------------------------------------
+| ADMIN
+|--------------------------------------------------------------------------
+*/
+    Route::middleware(['auth', 'role:admin'])->group(function () {
 
-    // membuat user (Hanya untuk Admin)
+    // manajemen user
     Route::resource('admin', AdminDashboardController::class);
 
-});
+    // ================= AUDIT LOG =================
+    Route::get('/audit', [AuditLogController::class, 'index'])
+        ->name('audit.index');
 
+    Route::get('/audit/{id}', [AuditLogController::class, 'show'])
+        ->name('audit.show');
+});

@@ -148,10 +148,15 @@
                 <span><strong>$53.98</strong></span>
               </li>
             </ul>
-
-            <button type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-lg btn-block">
-              Go to checkout
-            </button>
+            <form action="{{ route('cart.checkout') }}" method="POST">
+                @csrf
+                <button type="submit"
+                    data-mdb-button-init
+                    data-mdb-ripple-init
+                    class="btn btn-primary btn-lg btn-block">
+                    Go to checkout
+                </button>
+            </form>
           </div>
         </div>
       </div>
