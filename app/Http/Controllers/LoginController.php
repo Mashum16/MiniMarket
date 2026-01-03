@@ -33,38 +33,42 @@ class LoginController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
+            AuditLog::create([
+                'user_id' => Auth::id(),
+                'action' => 'LOGIN',
+                'description' => 'User melakukan login',
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ]);
+
             // Redirect berdasarkan role
             if (Auth::user()->role === 'admin') {
-                return redirect('/admin');
+                return redirect('/admin/dashboard');
             }
 
             if (Auth::user()->role === 'staff') {
-                return redirect('/staff');
+                return redirect('/staff/dashboard');
             }
 
             return redirect('/beranda');
-        }
+            }
 
-        AuditLog::create([
-            'user_id' => Auth::id(),
-            'action' => 'LOGIN',
-            'description' => 'User melakukan login',
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent(),
-        ]);
+            AuditLog::create([
+                'user_id' => null, // karena belum login
+                'action' => 'LOGIN_FAILED',
+                'description' => 'Percobaan login gagal dengan email: '.$request->email,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
         
-        return back()->withErrors([
-            'email' => 'Email atau password salah.'
-        ])->withInput();
+            return back()->withErrors([
+                'email' => 'Email atau password salah.'
+            ])->withInput();
 
     }
 
     public function logout(Request $request)
     {
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
         AuditLog::create([
             'user_id' => Auth::id(),
             'action' => 'LOGOUT',
@@ -72,6 +76,10 @@ class LoginController extends Controller
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
         ]);
+
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
         return redirect('/login');
     }

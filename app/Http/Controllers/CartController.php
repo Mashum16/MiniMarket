@@ -91,7 +91,7 @@ class CartController extends Controller
         // 2. Masukkan detail belanja ke OrderItems
         foreach ($cart as $product_id => $item) {
             OrderItems::create([
-                'order_id'          => $order->id,
+                'order_id'         => $order->id,
                 'product_id'        => $product_id,
                 'qty'               => $item['qty'],
                 'price_at_purchase' => $item['price']
@@ -101,7 +101,7 @@ class CartController extends Controller
         // 3. Kosongkan keranjang
         session()->forget('cart');
 
-        return redirect()->route('orders.show', $order->id)
+        return redirect()->route('beranda', $order->id)
                          ->with('success', 'Checkout berhasil!');
     }
 }

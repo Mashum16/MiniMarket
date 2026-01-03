@@ -68,8 +68,14 @@
             <li class="nav-item active">
                 <a class="nav-link" href="{{ route('orders.index') }}">
                     <span>Order</span></a>
-            </li>            
+            </li> 
 
+            <!-- Navigasi Audit Log -->
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('audit.index') }}">
+                    <span>Audit Log</span></a>
+            </li>
+            
             <!-- Sidebar Toggler (Sidebar) -->
             <div class="text-center d-none d-md-inline">
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>

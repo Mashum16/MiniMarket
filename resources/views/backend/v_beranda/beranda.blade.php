@@ -56,7 +56,7 @@
 
                             <!-- Keranjang -->
                             <li>
-                                <a class="dropdown-item d-flex justify-content-between align-items-center" href="/riwayat">
+                                <a class="dropdown-item d-flex justify-content-between align-items-center" href="/cart">
                                 <span>
                                 <i class="bi-cart-fill me-2"></i> Keranjang
                                 </span>

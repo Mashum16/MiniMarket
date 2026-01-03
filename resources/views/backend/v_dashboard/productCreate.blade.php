@@ -38,7 +38,7 @@ function previewAvatar(event) {
           <div class="card" style="border-radius: 15px;">
             <div class="card-body p-4">
 
-              <h2 class="text-uppercase text-center mb-4">Create an account</h2>
+              <h2 class="text-uppercase text-center mb-4">Buat Produk</h2>
 
               <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
                   @csrf
@@ -54,7 +54,7 @@ function previewAvatar(event) {
 
                     <input type="file" id="avatarInput" name="image" accept="image/*" 
                      class="d-none" onchange="previewAvatar(event)">
-                   <p class="mt-2 text-muted" style="font-size: 14px;">Klik untuk memilih foto profil</p>
+                   <p class="mt-2 text-muted" style="font-size: 14px;">Klik untuk memilih foto produk</p>
                   </div>
 
                   <div class="form-outline mb-3">

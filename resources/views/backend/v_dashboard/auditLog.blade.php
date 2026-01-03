@@ -60,7 +60,7 @@
             </li>
 
             <!-- Navigasi Produk -->
-            <li class="nav-item active">
+            <li class="nav-item">
                 <a class="nav-link" href="{{ route('products.index') }}">
                     <span>Produk</span></a>
             </li>
@@ -70,14 +70,14 @@
                 <a class="nav-link" href="{{ route('orders.index') }}">
                     <span>Order</span></a>
             </li>
-                
+
             <!-- Navigasi Audit Log -->
-            <li class="nav-item">
+            <li class="nav-item active">
                 <a class="nav-link" href="{{ route('audit.index') }}">
-                    <span>Audit Log</span></a>
+                    <span>Audit log</span></a>
             </li>
 
-                <!-- Sidebar Toggler (Sidebar) -->
+            <!-- Sidebar Toggler (Sidebar) -->
             <div class="text-center d-none d-md-inline">
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>
             </div>
@@ -196,52 +196,54 @@
                                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                     <thead>
                                         <tr>
-                                            <th>Nama</th>
-                                            <th>Harga</th>
-                                            <th>Stok</th>
-                                            <th>Gambar</th>
-                                            <th>Aksi</th>
+                                            <th>No</th>
+                                            <th>User</th>
+                                            <th>Action</th>
+                                            <th>Table</th>
+                                            <th>Record ID</th>
+                                            <th>Description</th>
+                                            <th>IP</th>
+                                            <th>User Agent</th>
+                                            <th>Waktu</th>
                                         </tr>
                                     </thead>
                                     <tfoot>
                                         <tr>
-                                            <th>Nama</th>
-                                            <th>Harga</th>
-                                            <th>Stok</th>
-                                            <th>Gambar</th>
-                                            <th>Aksi</th>
+                                            <th>No</th>
+                                            <th>User</th>
+                                            <th>Action</th>
+                                            <th>Table</th>
+                                            <th>Record ID</th>
+                                            <th>Description</th>
+                                            <th>IP</th>
+                                            <th>User Agent</th>
+                                            <th>Waktu</th>
                                         </tr>
                                     </tfoot>
                                     <tbody>
-                                        @foreach ($products as $i => $p)
+                                        @foreach ($Logs as $i)
                                         <tr>
-                                            <td>{{ $p->name }}</td>
-                                            <td>{{ $p->price }}</td>
-                                            <td>{{ $p->stock }}</td>
+                                            <td>{{ $loop->iteration }}</td>
+                                                                            
                                             <td>
-                                                <img src="{{ asset('storage/img-product/' . $p->image) }}" 
-                                                     alt="{{ $p->name }}" 
-                                                     style="width: 60px; height: auto; border-radius: 5px;">
+                                                {{ $i->user?->name ?? 'Guest / Unknown' }}
                                             </td>
-                                            <td class="text-center">
-                                                <!-- Tombol Edit -->
-                                                <a href="{{ route('products.edit', $p->id) }}" 
-                                                   class="btn btn-sm btn-warning mx-1">
-                                                    <i class="bi bi-pencil-square"></i>
-                                                </a>
-
-                                                <!-- Tombol Hapus -->
-                                                <form action="{{ route('products.destroy', $p->id) }}" 
-                                                      method="POST" 
-                                                      class="d-inline"
-                                                      onsubmit="return confirm('Yakin ingin menghapus produk ini?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button class="btn btn-sm btn-danger mx-1">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </form>
+                                                                            
+                                            <td>{{ $i->action }}</td>
+                                                                            
+                                            <td>{{ $i->table_name ?? '-' }}</td>
+                                                                            
+                                            <td>{{ $i->record_id ?? '-' }}</td>
+                                                                            
+                                            <td>{{ $i->description }}</td>
+                                                                            
+                                            <td>{{ $i->ip_address }}</td>
+                                                                            
+                                            <td title="{{ $i->user_agent }}">
+                                                {{ Str::limit($i->user_agent, 40) }}
                                             </td>
+                                                                            
+                                            <td>{{ $i->created_at->format('d-m-Y H:i') }}</td>
                                         </tr>
                                         @endforeach
                                     </tbody>
