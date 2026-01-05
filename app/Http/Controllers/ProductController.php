@@ -10,20 +10,23 @@ use App\Helpers\ImageHelper;
 
 class ProductController extends Controller
 {
-    // =============================
     // TAMPILKAN SEMUA PRODUK
     // Admin & Staff boleh
-    // =============================
     public function index()
     {
         $products = Product::orderBy('updated_at', 'desc')->get();
+        $user = Auth::user();
+
+        if ($user->role === 'staff') {
+            return view('backend.v_dashboard.productStaff', compact('products'));
+        }
+
+        // default admin
         return view('backend.v_dashboard.productDashboard', compact('products'));
     }
 
-    // =============================
     // FORM TAMBAH PRODUK
     // ADMIN SAJA
-    // =============================
     public function create()
     {
         if (Auth::user()->role !== 'admin') {
@@ -33,10 +36,8 @@ class ProductController extends Controller
         return view('backend.v_dashboard.productCreate');
     }
 
-    // =============================
     // SIMPAN PRODUK BARU
     // ADMIN SAJA
-    // =============================
     public function store(Request $request)
     {
         if (Auth::user()->role !== 'admin') {
@@ -74,20 +75,16 @@ class ProductController extends Controller
             ->with('success', 'Produk berhasil ditambahkan');
     }
 
-    // =============================
     // FORM EDIT PRODUK
     // ADMIN & STAFF
-    // =============================
     public function edit($id)
     {
         $product = Product::findOrFail($id);
         return view('backend.v_dashboard.productEdit', compact('product'));
     }
 
-    // =============================
     // UPDATE PRODUK
     // ADMIN & STAFF
-    // =============================
     public function update(Request $request, $id)
     {
         $product = Product::findOrFail($id);
@@ -133,10 +130,8 @@ class ProductController extends Controller
             ->with('success', 'Produk berhasil diupdate');
     }
 
-    // =============================
     // HAPUS PRODUK
     // ADMIN SAJA
-    // =============================
     public function destroy($id)
     {
         if (Auth::user()->role !== 'admin') {

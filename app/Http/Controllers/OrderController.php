@@ -14,20 +14,32 @@ class OrderController extends Controller
     // ===============================
     public function index()
     {
-        if (in_array(Auth::user()->role, ['admin', 'staff'])) {
-            // ADMIN & STAFF → lihat semua order
+        if (Auth::user()->role === 'admin') {
+            // ADMIN → lihat semua order
             $orders = Orders::with('user')
                             ->latest()
                             ->get();
+        
+            return view('backend.v_dashboard.orderDashboard', compact('orders'));
+        
+        } elseif (Auth::user()->role === 'staff') {
+            // STAFF → lihat semua order, tapi view khusus staff
+            $orders = Orders::with('user')
+                            ->latest()
+                            ->get();
+        
+            return view('backend.v_dashboard.orderStaff', compact('orders'));
+        
         } else {
-            // USER → hanya order sendiri
+            // USER → hanya order milik sendiri
             $orders = Orders::where('user_id', auth()->id())
                             ->latest()
                             ->get();
+        
+            return view('backend.v_dashboard.orderDashboard', compact('orders'));
         }
-
-        return view('backend.v_dashboard.orderDashboard', compact('orders'));
     }
+
 
     // ===============================
     // Tampilkan detail order

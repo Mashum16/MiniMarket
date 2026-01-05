@@ -11,19 +11,11 @@
 
     <title>MiniMarket</title>
 
-    <!-- Custom fonts for this template -->
-    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <link
-        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-        rel="stylesheet">
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
-    <!-- Custom styles for this template -->
-    <link href="css/sb-admin-2.min.css" rel="stylesheet">
-
-    <!-- Custom styles for this page -->
-    <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <link href="{{ asset('vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,600,700,800,900" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{{ asset('css/sb-admin-2.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
 
 </head>
 
@@ -45,7 +37,7 @@
 
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('beranda') }}">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <i class="fas fa-fw fa-home"></i>
                     <span>beranda</span></a>
             </li>
 
@@ -54,13 +46,13 @@
 
             <!-- Navigasi Dashboard -->
             <li class="nav-item">
-                <a class="nav-link" href="{{ route('admin.index') }}">
+                <a class="nav-link" href="{{ route('admin.users.index') }}">
                     <span>User</span></a>
             </li>
 
             <!-- Navigasi Produk -->
             <li class="nav-item">
-                <a class="nav-link" href="{{ route('products.index') }}">
+                <a class="nav-link" href="{{ route('admin.products.index') }}">
                     <span>Produk</span></a>
             </li>
 
@@ -72,7 +64,7 @@
 
             <!-- Navigasi Audit Log -->
             <li class="nav-item">
-                <a class="nav-link" href="{{ route('audit.index') }}">
+                <a class="nav-link" href="{{ route('admin.audit.index') }}">
                     <span>Audit Log</span></a>
             </li>
             

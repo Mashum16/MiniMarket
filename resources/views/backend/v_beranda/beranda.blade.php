@@ -34,7 +34,7 @@
 
                              @if(auth()->check() && auth()->user()->role === 'admin')
                             <li class="nav-item">
-                                <a class="nav-link text-danger fw-bold" href="{{ route('admin.index') }}">
+                                <a class="nav-link text-danger fw-bold" href="{{ route('admin.users.index') }}">
                                 Admin
                                 </a>
                             </li>
@@ -63,10 +63,7 @@
                                 <span class="badge bg-dark text-white rounded-pill">0</span>
                                 </a>
                             </li>
-
                             <li><a class="dropdown-item" href="/profile">Profil</a></li>
-                            <li><a class="dropdown-item" href="/settings">Pengaturan</a></li>
-
                             <li><hr class="dropdown-divider"></li>
 
                             <!-- Logout -->
