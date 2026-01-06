@@ -36,6 +36,20 @@
                     <span>Beranda</span>
                 </a>
             </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('customer.beranda') }}">
+                    <i class="fas fa-store-alt text-success fa-2x"></i>
+                    <span>MiniMarket</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('profile') }}">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
+                </a>
+            </li>
             <hr class="sidebar-divider my-0">
 
             <li class="nav-item">

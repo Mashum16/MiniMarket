@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>MiniMarket | Staff</title>
+    <title>MiniMarket | Customer</title>
 
     <!-- Styles -->
     <link href="{{ asset('vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet">
@@ -23,19 +23,12 @@
         <!-- Sidebar -->
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
             <!-- Sidebar Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('staff.beranda') }}">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('customer.beranda') }}">
                 <div class="sidebar-brand-icon rotate-n-15">
                     <i class="fas fa-smile-wink"></i>
                 </div>
-                <div class="sidebar-brand-text mx-3">Ruang Staff</div>
+                <div class="sidebar-brand-text mx-3">MiniMarket</div>
             </a>
-
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('staff.beranda') }}">
-                    <i class="fas fa-fw fa-home"></i>
-                    <span>Beranda</span>
-                </a>
-            </li>
 
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('customer.beranda') }}">
@@ -43,40 +36,19 @@
                     <span>MiniMarket</span>
                 </a>
             </li>
-
+            <hr class="sidebar-divider my-0">
+            
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('profile') }}">
                     <i class="fas fa-user"></i>
                     <span>Profile</span>
                 </a>
             </li>
-            <hr class="sidebar-divider my-0">
-
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('staff.users.index') }}">
-                    <i class="fas fa-users"></i>
-                    <span>User</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('staff.products.index') }}">
-                    <i class="fas fa-box"></i>
-                    <span>Produk</span>
-                </a>
-            </li>
 
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('orders.index') }}">
                     <i class="fas fa-shopping-cart"></i>
-                    <span>Order</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('staff.laporan.index') }}">
-                    <i class="fas fa-file-alt"></i>
-                    <span>Laporan</span>
+                    <span>Orders</span>
                 </a>
             </li>
 
@@ -163,10 +135,8 @@
     <script src="{{ asset('vendor/datatables/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('js/demo/datatables-demo.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-
-    <!-- Preview Avatar -->
+    <!-- preview avatar -->
     <script>
     function previewAvatar(event) {
         const reader = new FileReader();
@@ -202,16 +172,18 @@
         });
     </script>
 
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     @push('scripts')
     <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Tangkap semua tombol delete
         const deleteButtons = document.querySelectorAll('.btn-delete');
     
         deleteButtons.forEach(button => {
             button.addEventListener('click', function(e) {
-                e.preventDefault(); // cegah form submit otomatis
-                const form = this.closest('form'); // ambil form induknya
+                e.preventDefault();
+                const form = this.closest('form');
             
                 Swal.fire({
                     title: 'Apakah Anda yakin?',
@@ -224,7 +196,7 @@
                     cancelButtonText: 'Batal'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        form.submit(); // submit form jika user klik "Ya, hapus!"
+                        form.submit();
                     }
                 });
             });

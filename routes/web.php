@@ -46,9 +46,16 @@ Route::middleware('guest')->group(function () {
 */
 Route::middleware('auth')->group(function () {
 
+    // Beranda customer
+    Route::get('/beranda', [BerandaController::class, 'beranda'])->name('customer.beranda');
+
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+    // Menampilkan halaman profil (index)
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+    
+    // Memproses update data profil
+    Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
 
     // order
     Route::resource('orders', OrderController::class)->only(['index', 'show']);
@@ -64,6 +71,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
 });
 
+/*
+|--------------------------------------------------------------------------
+| ADMIN
+|--------------------------------------------------------------------------
+*/
 Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
     ->name('admin.')

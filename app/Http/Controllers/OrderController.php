@@ -36,7 +36,7 @@ class OrderController extends Controller
                             ->latest()
                             ->get();
         
-            return view('backend.v_order.index', compact('orders'));
+            return view('backend.v_customer.v_order.index', compact('orders'));
         }
     }
 

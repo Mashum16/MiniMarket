@@ -101,7 +101,7 @@ class CartController extends Controller
         // 3. Kosongkan keranjang
         session()->forget('cart');
 
-        return redirect()->route('beranda', $order->id)
+        return redirect()->route('customer.beranda', $order->id)
                          ->with('success', 'Checkout berhasil!');
     }
 }

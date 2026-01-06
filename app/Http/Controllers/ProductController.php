@@ -82,6 +82,11 @@ class ProductController extends Controller
             'user_agent' => $request->userAgent(),
         ]);
 
+        if (Auth::user()->role === 'staff') {
+            return redirect()->route('staff.products.index')
+                ->with('success', 'Produk berhasil ditambahkan');
+    }
+
         return redirect()->route('admin.products.index')
             ->with('success', 'Produk berhasil ditambahkan');
     }
@@ -148,33 +153,44 @@ class ProductController extends Controller
     }
 
     // HAPUS PRODUK
-    // ADMIN SAJA
     public function destroy($id)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403);
+        // 1. Izinkan Admin dan Staff, selain itu tolak (403)
+        if (!in_array(Auth::user()->role, ['admin', 'staff'])) {
+            abort(403, 'Anda tidak memiliki hak akses untuk menghapus produk.');
         }
 
         $product = Product::findOrFail($id);
 
+        // 2. Hapus gambar dari storage jika ada
         if ($product->image && file_exists(public_path('storage/img-product/' . $product->image))) {
             unlink(public_path('storage/img-product/' . $product->image));
         }
 
+        // 3. Hapus data produk
         $product->delete();
 
+        // 4. Catat ke Audit Log
         AuditLog::create([
             'user_id'    => Auth::id(),
             'action'     => 'DELETE',
             'table_name' => 'products',
             'record_id'  => $id,
-            'description'=> 'Menghapus data produk',
+            'description'=> 'Menghapus data produk melalui role ' . Auth::user()->role,
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
         ]);
 
+        // 5. Redirect Dinamis
+        // Jika Staff, arahkan ke staff.product.index
+        // Jika Admin, arahkan ke admin.products.index
+        if (Auth::user()->role === 'staff') {
+            return redirect()->route('staff.products.index')
+                ->with('success', 'Produk berhasil dihapus oleh Staff');
+        }
+
         return redirect()->route('admin.products.index')
-            ->with('success', 'Produk berhasil dihapus');
+            ->with('success', 'Produk berhasil dihapus oleh Admin');
     }
 
     public function show(string $id)
