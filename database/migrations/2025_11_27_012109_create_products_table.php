@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('category_id')->nullable()->constrained('categories')->onDelete('set null');
             $table->string('name');
             $table->decimal('price', 12, 2);
             $table->integer('stock')->default(0);

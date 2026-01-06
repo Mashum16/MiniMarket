@@ -7,6 +7,7 @@ use App\Models\OrderItems;
 class Product extends Model
 {
     protected $fillable = [
+        'category_id',
         'name',
         'price',
         'stock',
@@ -18,4 +19,15 @@ class Product extends Model
     {
         return $this->hasMany(OrderItems::class);
     }
+
+        public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+        public function images()
+    {
+       return $this->hasMany(ProductImage::class);
+    }
+
 }

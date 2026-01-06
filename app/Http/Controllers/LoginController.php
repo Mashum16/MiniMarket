@@ -43,11 +43,11 @@ class LoginController extends Controller
 
             // Redirect berdasarkan role
             if (Auth::user()->role === 'admin') {
-                return redirect('/admin/users');
+                return redirect()->route('admin.beranda');
             }
 
             if (Auth::user()->role === 'staff') {
-                return redirect('/staff/dashboard');
+                return redirect()->route('staff.beranda');
             }
 
             return redirect('/beranda');

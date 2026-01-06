@@ -20,7 +20,7 @@ class OrderController extends Controller
                             ->latest()
                             ->get();
         
-            return view('backend.v_dashboard.orderDashboard', compact('orders'));
+            return view('backend.v_admin.v_order.index', compact('orders'));
         
         } elseif (Auth::user()->role === 'staff') {
             // STAFF → lihat semua order, tapi view khusus staff
@@ -28,7 +28,7 @@ class OrderController extends Controller
                             ->latest()
                             ->get();
         
-            return view('backend.v_dashboard.orderStaff', compact('orders'));
+            return view('backend.v_staff.v_order.index', compact('orders'));
         
         } else {
             // USER → hanya order milik sendiri
@@ -36,7 +36,7 @@ class OrderController extends Controller
                             ->latest()
                             ->get();
         
-            return view('backend.v_dashboard.orderDashboard', compact('orders'));
+            return view('backend.v_order.index', compact('orders'));
         }
     }
 
@@ -47,7 +47,7 @@ class OrderController extends Controller
     public function show($id)
     {
         $order = Orders::with('user', 'items.product')->findOrFail($id);
-
+    
         // USER biasa hanya boleh lihat order sendiri
         if (
             !in_array(Auth::user()->role, ['admin', 'staff']) &&
@@ -55,7 +55,7 @@ class OrderController extends Controller
         ) {
             abort(403);
         }
-
+    
         // ================= AUDIT LOG (VIEW ORDER) =================
         AuditLog::create([
             'user_id'     => Auth::id(),
@@ -69,9 +69,16 @@ class OrderController extends Controller
             'user_agent'  => request()->userAgent(),
         ]);
         // ===========================================================
+    
+        // Pilih view berbeda untuk admin dan staff
+        if (Auth::user()->role === 'staff') {
+            return view('backend.v_staff.v_order.detail', compact('order'));
+        }
 
-        return view('backend.v_dashboard.orderShow', compact('order'));
+        // default admin
+        return view('backend.v_admin.v_order.detail', compact('order'));
     }
+
 
     // ===============================
     // Update status order (admin / staff)

@@ -15,4 +15,19 @@ class BerandaController extends Controller
         ]);
     }
 
+    public function adminBeranda()
+    {
+        return view('backend.v_admin.v_beranda.index', [
+            'judul' => 'Beranda Admin'
+        ]);
+    }
+
+    public function staffBeranda()
+    {
+        return view('backend.v_staff.v_beranda.index', [
+            'judul' => 'Beranda Staff'
+        ]);
+    }
+
+
 }

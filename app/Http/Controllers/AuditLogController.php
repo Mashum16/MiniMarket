@@ -13,7 +13,7 @@ class AuditLogController extends Controller
     public function index()
     {
         $Logs = AuditLog::orderBy('created_at', 'desc')->get();
-        return view('backend.v_dashboard.auditLog', compact('Logs'));
+        return view('backend.v_admin.v_audit.index', compact('Logs'));
     }
 
     /**

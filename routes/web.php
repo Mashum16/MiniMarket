@@ -5,22 +5,22 @@ use App\Http\Controllers\{
     BerandaController,
     LoginController,
     RegisterController,
-    AdminDashboardController,
-    StaffDashboardController,
+    UserController,
     ProductController,
     CartController,
     OrderController,
     ProfileController,
-    AuditLogController
+    AuditLogController,
+    CategoryController,
+    ProductImagesController,
+    ReportController,
 };
 
 /*
 |--------------------------------------------------------------------------
-| WEB ROUTES
+| WELCOME
 |--------------------------------------------------------------------------
 */
-
-// welcome
 Route::get('/', function () {
     return view('welcome');
 });
@@ -48,7 +48,6 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-    Route::get('/beranda', [BerandaController::class, 'beranda'])->name('beranda');
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
 
     // order
@@ -65,26 +64,35 @@ Route::middleware('auth')->group(function () {
     Route::post('/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
 });
 
-/*
-|--------------------------------------------------------------------------
-| ADMIN (FULL ACCESS PRODUK)
-|--------------------------------------------------------------------------
-*/
 Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
 
-    Route::resource('products', ProductController::class);
-    Route::resource('users', AdminDashboardController::class);
+        Route::get('/', [BerandaController::class, 'adminBeranda'])->name('beranda');
 
-    Route::get('/audit', [AuditLogController::class, 'index'])->name('audit.index');
-    Route::get('/audit/{id}', [AuditLogController::class, 'show'])->name('audit.show');
+        Route::resource('products', ProductController::class);
+        Route::resource('users', UserController::class);
+        Route::resource('categories', CategoryController::class);
+
+        Route::post('/product-images', [ProductImagesController::class, 'store'])
+            ->name('product-images.store');
+
+        Route::delete('/product-images/{id}', [ProductImagesController::class, 'destroy'])
+            ->name('product-images.destroy');
+
+        // LAPORAN
+        Route::resource('laporan', ReportController::class)->only(['index']);
+        Route::get('/laporan/print', [ReportController::class, 'print'])
+            ->name('laporan.print');
+
+        Route::get('/audit', [AuditLogController::class, 'index'])->name('audit.index');
+        Route::get('/audit/{id}', [AuditLogController::class, 'show'])->name('audit.show');
 });
 
 /*
 |--------------------------------------------------------------------------
-| STAFF
+| STAFF (TERBATAS)
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'role:staff'])
@@ -92,17 +100,29 @@ Route::middleware(['auth', 'role:staff'])
     ->name('staff.')
     ->group(function () {
 
-    // STAFF DASHBOARD (RESOURCE)
-    Route::resource('/', StaffDashboardController::class)
-        ->only(['index', 'edit', 'update', 'create']);
+    // Beranda staff
+    Route::get('/', [BerandaController::class, 'staffBeranda'])->name('beranda');
 
-    // alias opsional: /staff/dashboard
-    Route::get('/dashboard', [StaffDashboardController::class, 'index'])
-        ->name('dashboard');
+    // User (staff hanya lihat index)
+    Route::resource('users', UserController::class)
+        ->only(['index']);
 
-    // PRODUK (staff hanya create & edit)
+    // Product (staff bisa semua method)
     Route::resource('products', ProductController::class)
-        ->only(['index', 'create', 'store', 'edit', 'update']);
-});
+        ->only(['index', 'create', 'store', 'edit', 'update', 'destroy', 'show']);
 
+    // Product Images
+    Route::post('/product-images', [ProductImagesController::class, 'store'])
+        ->name('product-images.store');
+
+    Route::delete('/product-images/{id}', [ProductImagesController::class, 'destroy'])
+        ->name('product-images.destroy');
+
+    // Laporan (staff versi berbeda dari admin)
+    Route::get('/laporan', [ReportController::class, 'index'])
+        ->name('laporan.index');
+
+    Route::get('/laporan/print', [ReportController::class, 'print'])
+        ->name('laporan.print');
+});
 
