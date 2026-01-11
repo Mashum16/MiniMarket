@@ -14,6 +14,7 @@ use App\Http\Controllers\{
     CategoryController,
     ProductImagesController,
     ReportController,
+    BackupController
 };
 
 /*
@@ -36,7 +37,7 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [LoginController::class, 'authenticate']);
 
     Route::get('/register', [RegisterController::class, 'registerForm'])->name('register');
-    Route::post('/register', [RegisterController::class, 'storeRegister'])->name('register.store');
+    Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
 });
 
 /*
@@ -100,6 +101,9 @@ Route::middleware(['auth', 'role:admin'])
 
         Route::get('/audit', [AuditLogController::class, 'index'])->name('audit.index');
         Route::get('/audit/{id}', [AuditLogController::class, 'show'])->name('audit.show');
+
+        Route::post('/backup', [BackupController::class, 'run'])
+            ->name('backup.run');
 });
 
 /*

@@ -27,7 +27,7 @@
                 <div class="sidebar-brand-icon rotate-n-15">
                     <i class="fas fa-smile-wink"></i>
                 </div>
-                <div class="sidebar-brand-text mx-3">Ruang Admin</div>
+                <div class="sidebar-brand-text mx-2">Ruang Admin</div>
             </a>
 
             <li class="nav-item">
@@ -104,6 +104,17 @@
                 </a>
             </li>
 
+            <li class="nav-item">
+                <form action="{{ route('admin.backup.run') }}" method="POST" class="form-backup">
+                    @csrf
+                    <button type="submit"
+                        class="nav-link btn btn-link text-left text-danger w-100 btn-backup">
+                        <i class="fas fa-database"></i>
+                        <span>Backup Sistem</span>
+                    </button>
+                </form>
+            </li>
+
             <div class="text-center d-none d-md-inline">
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>
             </div>
@@ -149,9 +160,7 @@
                                 <a class="dropdown-item" href="{{ route('profile') }}">
                                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i> Profile
                                 </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i> Settings
-                                </a>
+
                                 <div class="dropdown-divider"></div>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
@@ -258,6 +267,34 @@
         });
     });
     </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const backupForm = document.querySelector('.form-backup');
+    
+        if (backupForm) {
+            backupForm.addEventListener('submit', function (e) {
+                e.preventDefault(); // cegah submit langsung
+            
+                Swal.fire({
+                    title: 'Jalankan Backup?',
+                    text: 'Proses backup dapat memakan waktu beberapa detik.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Ya, Backup!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        backupForm.submit();
+                    }
+                });
+            });
+        }
+    });
+    </script>
+
     @endpush
 
     @stack('scripts')
